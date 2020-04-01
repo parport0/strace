@@ -436,6 +436,7 @@ Tampering:\n\
 Miscellaneous:\n\
   -d, --debug    enable debug output to stderr\n\
   -h, --help     print help message\n\
+  --no-tips      do not show strace tips, tricks, and tweaks\n\
   --seccomp-bpf  enable seccomp-bpf filtering\n\
   -V, --version  print version\n\
 "
@@ -1903,6 +1904,7 @@ init(int argc, char *argv[])
 		GETOPT_FOLLOWFORKS,
 		GETOPT_OUTPUT_SEPARATELY,
 		GETOPT_TS,
+		GETOPT_TIPS,
 
 		GETOPT_QUAL_TRACE,
 		GETOPT_QUAL_ABBREV,
@@ -1957,6 +1959,7 @@ init(int argc, char *argv[])
 		{ "failed-only",	no_argument,	   0, 'Z' },
 		{ "failing-only",	no_argument,	   0, 'Z' },
 		{ "seccomp-bpf",	no_argument,	   0, GETOPT_SECCOMP },
+		{ "no-tips",		no_argument,	   0, GETOPT_TIPS },
 
 		{ "trace",	required_argument, 0, GETOPT_QUAL_TRACE },
 		{ "abbrev",	required_argument, 0, GETOPT_QUAL_ABBREV },
@@ -2168,6 +2171,9 @@ init(int argc, char *argv[])
 			break;
 		case GETOPT_SECCOMP:
 			seccomp_filtering = true;
+			break;
+		case GETOPT_TIPS:
+			show_tips = false;
 			break;
 		case GETOPT_QUAL_TRACE:
 			qualify_trace(optarg);
@@ -3535,6 +3541,7 @@ terminate(void)
 		exit_code &= 0xff;
 		signal(exit_code, SIG_DFL);
 		GCOV_DUMP;
+		print_totd();
 		raise(exit_code);
 
 		/* Unblock the signal.  */
@@ -3548,6 +3555,8 @@ terminate(void)
 		   Exit with 128 + signo then.  */
 		exit_code += 128;
 	}
+
+	print_totd();
 	exit(exit_code);
 }
 
